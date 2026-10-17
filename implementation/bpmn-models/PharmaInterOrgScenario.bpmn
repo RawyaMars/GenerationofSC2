@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<definitions
+  xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:caterpillar="http://caterpillar.blockchain/bpmn"
+  xmlns:temporal="http://iobp.temporal-constraints/bpmn/level3"
+  id="Definitions_PharmaInterOrgScenario"
+  targetNamespace="http://temporal-constraints/bpmn/interorg-scenario">
+
+  <process id="pharma_interorg" name="Scenario inter-organisationnel Fabricant/Regulateur"
+           caterpillar:baseContract="AbstractProcess" caterpillar:markingBits="8">
+
+    
+    <caterpillar:constructorParam name="_fabricant" type="address"
+      description="Fabricant organisation address"/>
+    <caterpillar:constructorParam name="_regulateur" type="address"
+      description="Regulateur organisation address"/>
+
+    <temporal:subContract id="cid"  contractName="CID"/>
+    <temporal:subContract id="cbtd" contractName="CBTD"/>
+    <temporal:subContract id="nrd"  contractName="NRD"/>
+    <temporal:subContract id="ccgd" contractName="CCGD"/>
+    <temporal:subContract id="cccw" contractName="CCCW"/>
+
+    
+    <task id="Task_PrepareLot" name="Preparation du lot"
+          caterpillar:inFlow="0" caterpillar:outFlow="1" caterpillar:executedBy="fabricant">
+      <extensionElements>
+        <temporal:constraint def="CCGD" role="start"
+          subContractRef="ccgd" cprMsgParam="prepMsgId" enforcement="verify"
+          call="ccgd.recordStart(instanceId, prepMsgId, tau_prepMsgId)"/>
+        <temporal:constraint def="CID" role="send"
+          subContractRef="cid" cprMsgParam="prepMsgId" enforcement="verify"
+          call="cid.registerSend(instanceId, prepMsgId, tau_prepMsgId)"/>
+      </extensionElements>
+    </task>
+
+    <task id="Task_ReceivePreparation" name="Reception de la preparation par le Regulateur"
+          caterpillar:inFlow="1" caterpillar:outFlow="2" caterpillar:executedBy="regulateur">
+      <extensionElements>
+        
+        <temporal:constraint def="CID" role="receive"
+          subContractRef="cid" cprMsgParam="prepMsgId"
+          functionParam="maxCIDSeconds:uint256" enforcement="verify"
+          call="cid.registerReceive(instanceId, prepMsgId, maxCIDSeconds)"/>
+      </extensionElements>
+    </task>
+
+    
+    <task id="Task_NotifyAvailability" name="Notification de disponibilite du lot"
+          caterpillar:inFlow="2" caterpillar:outFlow="3" caterpillar:executedBy="fabricant">
+      <extensionElements>
+        <temporal:constraint def="CBTD" variant="FS" role="orgA"
+          subContractRef="cbtd" cprMsgParam="availMsgId" enforcement="verify"
+          call='cbtd.recordOrgARef(instanceId, "FS", availMsgId, tau_availMsgId)'/>
+      </extensionElements>
+    </task>
+
+    <task id="Task_ValidateLot" name="Validation du lot par le Regulateur"
+          caterpillar:inFlow="3" caterpillar:outFlow="4" caterpillar:executedBy="regulateur">
+      <extensionElements>
+        
+        <temporal:constraint def="CBTD" variant="FS" role="orgB"
+          subContractRef="cbtd" cprMsgParam="availMsgId"
+          minD="600" maxD="900" enforcement="verify"
+          call='cbtd.recordOrgBRef(instanceId, "FS", availMsgId, 600, 900)'/>
+      </extensionElements>
+    </task>
+
+    
+    <task id="Task_RequestInfo" name="Demande d'information par le Regulateur"
+          caterpillar:inFlow="4" caterpillar:outFlow="5" caterpillar:executedBy="regulateur">
+      <extensionElements>
+        
+        <temporal:constraint def="NRD" role="send"
+          subContractRef="nrd" cprMsgParam="infoMsgId"
+          functionParam="maxAckTime:uint256" enforcement="verify"
+          call="nrd.registerSend(instanceId, infoMsgId, tau_infoMsgId, maxAckTime)"/>
+      </extensionElements>
+    </task>
+
+    <task id="Task_RespondInfo" name="Reponse du Fabricant a la demande d'information"
+          caterpillar:inFlow="5" caterpillar:outFlow="6" caterpillar:executedBy="fabricant">
+      <extensionElements>
+        
+        <temporal:constraint def="NRD" role="ack"
+          subContractRef="nrd" cprMsgParam="infoAckMsgId" enforcement="verify"
+          call="nrd.registerAck(instanceId, infoAckMsgId)"/>
+      </extensionElements>
+    </task>
+
+    
+    <task id="Task_QualityControl" name="Controle qualite du lot"
+          caterpillar:inFlow="6" caterpillar:outFlow="7" caterpillar:executedBy="fabricant"/>
+
+    
+    <task id="Task_CloseProcess" name="Cloture du processus collaboratif"
+          caterpillar:inFlow="7" caterpillar:outFlow="end" caterpillar:executedBy="regulateur">
+      <extensionElements>
+        
+        <temporal:constraint def="CCGD" role="end"
+          subContractRef="ccgd" cprMsgParam="closeMsgId" enforcement="verify"
+          call="ccgd.recordEnd(instanceId, closeMsgId, 172800)"/>
+      </extensionElements>
+    </task>
+
+    
+    
+    <subProcess id="Sub_LotQuarantine" name="Mise en quarantaine du lot"
+                isForCompensation="true">
+      <extensionElements>
+        <temporal:constraint def="CCCW"
+          subContractRef="cccw"
+          maxCompTime="600"
+          enforcement="verify"
+          failureMsgParam="failureMsgId"
+          compensationMsgParam="quarantineMsgId"
+          doneMsgParam="quarantineDoneMsgId"/>
+      </extensionElements>
+    </subProcess>
+
+    <sequenceFlow id="Flow_0" sourceRef="Task_PrepareLot" targetRef="Task_ReceivePreparation"/>
+    <sequenceFlow id="Flow_1" sourceRef="Task_ReceivePreparation" targetRef="Task_NotifyAvailability"/>
+    <sequenceFlow id="Flow_2" sourceRef="Task_NotifyAvailability" targetRef="Task_ValidateLot"/>
+    <sequenceFlow id="Flow_3" sourceRef="Task_ValidateLot" targetRef="Task_RequestInfo"/>
+    <sequenceFlow id="Flow_4" sourceRef="Task_RequestInfo" targetRef="Task_RespondInfo"/>
+    <sequenceFlow id="Flow_5" sourceRef="Task_RespondInfo" targetRef="Task_QualityControl"/>
+    <sequenceFlow id="Flow_6" sourceRef="Task_QualityControl" targetRef="Task_CloseProcess"/>
+  </process>
+</definitions>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                   xmlns:caterpillar="http://caterpillar.blockchain/bpmn"
+                   xmlns:temporal="http://iobp.temporal-constraints/bpmn/level3"
+                   id="Definitions_XorConditional" targetNamespace="http://temporal-constraints/test">
+  <bpmn:process id="XorConditionalTest" name="XOR Conditional Test"
+                caterpillar:baseContract="AbstractProcess" caterpillar:markingBits="8">
+
+    <bpmn:startEvent id="Start" name="Start"/>
+    <bpmn:sequenceFlow id="sf0" sourceRef="Start" targetRef="Task_A"/>
+
+    <bpmn:task id="Task_A" name="QC Inspection"/>
+    <bpmn:sequenceFlow id="sf1" sourceRef="Task_A" targetRef="XorSplit"/>
+
+    <bpmn:exclusiveGateway id="XorSplit" name="QC Decision"
+                            caterpillar:decisionParam="qcResult:string"
+                            default="sf_default">
+      <bpmn:incoming>sf1</bpmn:incoming>
+      <bpmn:outgoing>sf2</bpmn:outgoing>
+      <bpmn:outgoing>sf3</bpmn:outgoing>
+      <bpmn:outgoing>sf_default</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:sequenceFlow id="sf2" sourceRef="XorSplit" targetRef="Task_B"
+                        caterpillar:condition='qcResult == "pass"'/>
+    <bpmn:sequenceFlow id="sf3" sourceRef="XorSplit" targetRef="Task_C"
+                        caterpillar:condition='qcResult == "fail"'/>
+    <bpmn:sequenceFlow id="sf_default" sourceRef="XorSplit" targetRef="Task_D"/>
+
+    <bpmn:task id="Task_B" name="Release Batch"/>
+    <bpmn:sequenceFlow id="sf4" sourceRef="Task_B" targetRef="XorJoin"/>
+
+    <bpmn:task id="Task_C" name="Reject Batch"/>
+    <bpmn:sequenceFlow id="sf5" sourceRef="Task_C" targetRef="XorJoin"/>
+
+    <bpmn:task id="Task_D" name="Escalate for Review"/>
+    <bpmn:sequenceFlow id="sf6" sourceRef="Task_D" targetRef="XorJoin"/>
+
+    <bpmn:exclusiveGateway id="XorJoin" name="Join">
+      <bpmn:incoming>sf4</bpmn:incoming>
+      <bpmn:incoming>sf5</bpmn:incoming>
+      <bpmn:incoming>sf6</bpmn:incoming>
+      <bpmn:outgoing>sf7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:sequenceFlow id="sf7" sourceRef="XorJoin" targetRef="Task_E"/>
+
+    <bpmn:task id="Task_E" name="Close Process"/>
+    <bpmn:sequenceFlow id="sf8" sourceRef="Task_E" targetRef="End"/>
+
+    <bpmn:endEvent id="End" name="End"/>
+  </bpmn:process>
+</bpmn:definitions>

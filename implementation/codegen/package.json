@@ -1,0 +1,16 @@
+{
+  "name": "caterpillar-temporal-codegen",
+  "version": "1.0.0",
+  "description": "Caterpillar BPMN-to-Solidity code generator extended with Level-3 temporal constraints",
+  "main": "generator.js",
+  "bin": { "tcgen": "./cli.js" },
+  "scripts": {
+    "generate": "node cli.js ../bpmn-models/PharmaInterOrgScenario.bpmn --out generated",
+    "generate:fabric": "node cli.js ../bpmn-models/PharmaInterOrgScenario.bpmn --out generated --fabric",
+    "test": "node cli.js ../bpmn-models/PharmaInterOrgScenario.bpmn --out generated && node cli.js ../bpmn-models/PharmaInterOrgScenario.bpmn --out generated --fabric && node --test test/ && echo 'Generation OK (Solidity + Fabric)'"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "^0.8.10",
+    "xpath": "^0.0.34"
+  }
+}

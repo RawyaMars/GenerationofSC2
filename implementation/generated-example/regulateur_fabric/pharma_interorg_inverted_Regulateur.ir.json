@@ -1,0 +1,105 @@
+{
+  "id": "pharma_interorg_inverted_Regulateur",
+  "name": "Scenario inter-organisationnel inverse: Fabricant/Ethereum, Regulateur/Hyperledger Fabric",
+  "baseContract": "AbstractProcess",
+  "markingBits": 8,
+  "ctorParams": [],
+  "subContracts": [],
+  "tasks": [
+    {
+      "id": "Task_ValidateLot",
+      "name": "Validation du lot par le Regulateur",
+      "inFlow": "0",
+      "outFlow": "1",
+      "executedBy": "any",
+      "noTokenMove": false,
+      "bitIndex": 0,
+      "constraints": [
+        {
+          "def": "CBTD",
+          "variant": "FS",
+          "role": "orgB",
+          "subContractRef": "cbtd",
+          "cprMsgParam": "availMsgId",
+          "enforcement": "verify",
+          "call": "cbtd.recordOrgBRef(instanceId, \"FS\", availMsgId, 600, 900)",
+          "functionParam": null,
+          "minD": "600",
+          "maxD": "900",
+          "globalDeadline": null,
+          "maxCompTime": null,
+          "orgExpr": null,
+          "failureMsgParam": null,
+          "compensationMsgParam": null,
+          "doneMsgParam": null
+        }
+      ],
+      "extraParams": [],
+      "ownerOrg": "Regulateur",
+      "predecessors": [],
+      "joinType": "none",
+      "xorResolves": [],
+      "xorSiblings": [],
+      "xorGatewayId": null,
+      "xorGatewayConditionsDeclared": false
+    }
+  ],
+  "flows": [
+    {
+      "id": "SequenceFlow_R0",
+      "sourceRef": "StartEvent_ValidationTriggered",
+      "targetRef": "Task_ValidateLot",
+      "condition": null,
+      "ownerOrg": "Regulateur"
+    },
+    {
+      "id": "SequenceFlow_R1",
+      "sourceRef": "Task_ValidateLot",
+      "targetRef": "EndEvent_Regulateur",
+      "condition": null,
+      "ownerOrg": "Regulateur"
+    }
+  ],
+  "gateways": [],
+  "compensation": null,
+  "organizations": [
+    {
+      "id": "Fabricant",
+      "name": "Fabricant",
+      "platform": "Ethereum",
+      "processRef": "Process_Fabricant",
+      "baseContract": "AbstractProcess",
+      "markingBits": 8,
+      "ctorParams": [],
+      "subContracts": [
+        {
+          "id": "cbtd",
+          "contractName": "CBTD",
+          "cprParam": null,
+          "importPath": "level3",
+          "initGate": null
+        }
+      ],
+      "compensation": null
+    },
+    {
+      "id": "Regulateur",
+      "name": "Regulateur",
+      "platform": "Hyperledger Fabric",
+      "processRef": "Process_Regulateur",
+      "baseContract": "AbstractProcess",
+      "markingBits": 8,
+      "ctorParams": [],
+      "subContracts": [],
+      "compensation": null
+    }
+  ],
+  "interactions": [
+    {
+      "id": "MessageFlow_Availability",
+      "name": "Notification de disponibilite du lot",
+      "sourceRef": "Task_NotifyAvailability",
+      "targetRef": "StartEvent_ValidationTriggered"
+    }
+  ]
+}

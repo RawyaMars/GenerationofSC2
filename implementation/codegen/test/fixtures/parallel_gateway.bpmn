@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                   xmlns:caterpillar="http://caterpillar.blockchain/bpmn"
+                   xmlns:temporal="http://iobp.temporal-constraints/bpmn/level3"
+                   id="Definitions_Parallel" targetNamespace="http://temporal-constraints/test">
+  <bpmn:process id="ParallelGatewayTest" name="Parallel Gateway Test"
+                caterpillar:baseContract="AbstractProcess" caterpillar:markingBits="8">
+
+    <bpmn:startEvent id="Start" name="Start"/>
+    <bpmn:sequenceFlow id="sf0" sourceRef="Start" targetRef="Task_A"/>
+
+    <bpmn:task id="Task_A" name="Task A"/>
+    <bpmn:sequenceFlow id="sf1" sourceRef="Task_A" targetRef="ParallelSplit"/>
+
+    <bpmn:parallelGateway id="ParallelSplit" name="Split">
+      <bpmn:incoming>sf1</bpmn:incoming>
+      <bpmn:outgoing>sf2</bpmn:outgoing>
+      <bpmn:outgoing>sf3</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <bpmn:sequenceFlow id="sf2" sourceRef="ParallelSplit" targetRef="Task_B"/>
+    <bpmn:sequenceFlow id="sf3" sourceRef="ParallelSplit" targetRef="Task_C"/>
+
+    <bpmn:task id="Task_B" name="Task B"/>
+    <bpmn:sequenceFlow id="sf4" sourceRef="Task_B" targetRef="ParallelJoin"/>
+
+    <bpmn:task id="Task_C" name="Task C"/>
+    <bpmn:sequenceFlow id="sf5" sourceRef="Task_C" targetRef="ParallelJoin"/>
+
+    <bpmn:parallelGateway id="ParallelJoin" name="Join">
+      <bpmn:incoming>sf4</bpmn:incoming>
+      <bpmn:incoming>sf5</bpmn:incoming>
+      <bpmn:outgoing>sf6</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <bpmn:sequenceFlow id="sf6" sourceRef="ParallelJoin" targetRef="Task_D"/>
+
+    <bpmn:task id="Task_D" name="Task D"/>
+    <bpmn:sequenceFlow id="sf7" sourceRef="Task_D" targetRef="End"/>
+
+    <bpmn:endEvent id="End" name="End"/>
+  </bpmn:process>
+</bpmn:definitions>
