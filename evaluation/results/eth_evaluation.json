@@ -1,0 +1,331 @@
+{
+  "generated_at": "2026-06-30T16:16:15.640Z",
+  "platform": "Ethereum (Hardhat local network)",
+  "solidity_version": "0.8.19",
+  "hardhat_version": "2.22.19",
+  "node_version": "v20.20.1",
+  "contracts": {
+    "Def1_Duration": {
+      "deploy_gas": 272247,
+      "startTask_gas": 67545,
+      "endTask_happy_gas": 27357,
+      "endTask_violation_gas": 29168,
+      "happy_elapsed_s": 120,
+      "window": [
+        60,
+        300
+      ],
+      "violation_elapsed_s": 30,
+      "violation_window": [
+        600,
+        3600
+      ],
+      "violation_detected": true
+    },
+    "Def2_Cardinality": {
+      "deploy_gas": 338736,
+      "initTask_gas": 135183,
+      "executeTask_first_gas": 56707,
+      "executeTask_violation_gas": 42220,
+      "nmax": 3,
+      "dmax_s": 3600,
+      "violation_detected": true
+    },
+    "Def3_TemporalDependency": {
+      "deploy_gas": 443859,
+      "finishTaskA_FS_gas": 45151,
+      "startTaskB_FS_happy_gas": 47932,
+      "startTaskB_FS_violation_gas": 51343,
+      "variant": "FS",
+      "happy_gap_s": 7200,
+      "window": [
+        3600,
+        14400
+      ],
+      "violation_gap_s": 60,
+      "violation_detected": true
+    },
+    "Def4_AbsoluteConstraints": {
+      "deploy_gas": 312699,
+      "startTask_SNLT_happy_gas": 45419,
+      "startTask_SNLT_violation_gas": 49186,
+      "startTask_MSO_happy_gas": 45616,
+      "startTask_MSO_violation_gas": 49383,
+      "finishTask_FNLT_happy_gas": 45466,
+      "mso_tolerance_s": 30,
+      "snlt_violation_detected": true,
+      "mso_violation_detected": true
+    },
+    "Def5_CrossOrgTD": {
+      "deploy_gas": 770566,
+      "orgA_finish_FS_gas": 49237,
+      "orgB_start_FS_happy_gas": 51994,
+      "orgB_start_FS_violation_gas": 55345,
+      "variant": "FS",
+      "happy_gap_s": 7200,
+      "window": [
+        1800,
+        14400
+      ],
+      "violation_gap_s": 600,
+      "violation_detected": true
+    },
+    "Def6_SyncDeadline": {
+      "deploy_gas": 604405,
+      "initSyncGate_gas": 134768,
+      "markComplete_first_gas": 99245,
+      "markComplete_fires_gas": 66618,
+      "markComplete_violation_gas": 67796,
+      "happy_gap_s": 3600,
+      "maxwait_s": 5400,
+      "violation_gap_s": 8000,
+      "gate_fired": true,
+      "violation_detected": true
+    },
+    "Def7_GlobalDeadline": {
+      "deploy_gas": 433342,
+      "startProcess_gas": 90096,
+      "endProcess_happy_gas": 31249,
+      "endProcess_violation_gas": 41648,
+      "happy_elapsed_h": 24,
+      "limit_h": 48,
+      "violation_elapsed_h": 60,
+      "violation_detected": true
+    },
+    "MockCPRRegistry": {
+      "deploy_gas": 133389
+    },
+    "Def8_CID": {
+      "deploy_gas": 396042,
+      "registerSend_gas": 51108,
+      "registerReceive_happy_gas": 34541,
+      "happy_lag_s": 2700,
+      "max_d_s": 3600,
+      "violation_lag_s": 7200,
+      "violation_reverted": true,
+      "enforcement": "HARD"
+    },
+    "Def9_CCTD": {
+      "deploy_gas": 528175,
+      "recordOrgARef_gas": 53325,
+      "recordOrgBRef_happy_gas": 36994,
+      "variant": "FS",
+      "happy_gap_s": 7200,
+      "window": [
+        1800,
+        14400
+      ],
+      "violation_gap_s": 50000,
+      "violation_reverted": true,
+      "enforcement": "HARD"
+    },
+    "Def10_CCSD": {
+      "deploy_gas": 602594,
+      "initGate_gas": 134154,
+      "markComplete_first_gas": 105550,
+      "markComplete_fires_gas": 72936,
+      "happy_lag_s": 3600,
+      "maxwait_s": 5400,
+      "violation_lag_s": 9000,
+      "gate_fired": true,
+      "violation_reverted": true,
+      "enforcement": "HARD"
+    },
+    "Def11_CECW": {
+      "deploy_gas": 490833,
+      "registerOffer_gas": 118310,
+      "accept_happy_gas": 38505,
+      "accept_violation_gas": 38815,
+      "window_s": 3600,
+      "happy_lag_s": 1800,
+      "violation_lag_s": 5000,
+      "state_machine": true,
+      "violation_reverted": false,
+      "enforcement": "SOFT",
+      "expired_state": 3
+    },
+    "Def12_CCGD": {
+      "deploy_gas": 413272,
+      "recordStart_gas": 95630,
+      "recordEnd_happy_gas": 37149,
+      "limit_h": 48,
+      "happy_elapsed_h": 24,
+      "violation_elapsed_h": 55,
+      "violation_reverted": true,
+      "enforcement": "HARD"
+    },
+    "Def13_CCCW": {
+      "deploy_gas": 598606,
+      "recordFailure_gas": 98576,
+      "startCompensation_happy_gas": 55670,
+      "completeCompensation_gas": 34132,
+      "startCompensation_violation_gas": 55883,
+      "max_comp_time_s": 7200,
+      "happy_lag_s": 3000,
+      "violation_lag_s": 9000,
+      "state_machine": true,
+      "violation_reverted": false,
+      "enforcement": "SOFT",
+      "completed_state": 2,
+      "irrecoverable_state": 3
+    },
+    "Def14_NRD": {
+      "deploy_gas": 517950,
+      "registerSend_gas": 98351,
+      "registerAck_happy_gas": 56132,
+      "registerAck_violation_gas": 58546,
+      "claimNonReceipt_gas": 52976,
+      "max_ack_time_s": 3600,
+      "happy_lag_s": 1800,
+      "violation_lag_s": 5000,
+      "state_machine": true,
+      "violation_reverted": false,
+      "enforcement": "SOFT",
+      "evidence_emitted": true,
+      "iso_13888_compliance": true
+    }
+  },
+  "pharma_scenario": {
+    "participants": {
+      "Manufacturer": "Hyperledger Fabric (ManufacturerMSP)",
+      "Distributor": "Hyperledger Fabric (LogisticsMSP)",
+      "Regulatory": "Ethereum (smart contracts)"
+    },
+    "tau_cpr_timestamps": {
+      "batch_release": 1750000000,
+      "filing_sent": 1750002700,
+      "filing_ack": 1750005400,
+      "logistics_dispatch": 1750007200,
+      "regulatory_dispatch": 1750007500,
+      "delivery": 1750169200
+    },
+    "constraints": {
+      "cctd": {
+        "constraint": "CCTD-9 (FS): batch_release → logistics_dispatch in [30min, 4h]",
+        "gap_s": 7200,
+        "gap_min": 120,
+        "window": [
+          1800,
+          14400
+        ],
+        "satisfied": true,
+        "deploy_gas": 528175,
+        "execute_gas": 37006
+      },
+      "cid": {
+        "constraint": "CID-8: filing_sent → filing_ack lag ≤ 1h",
+        "lag_s": 2700,
+        "lag_min": 45,
+        "max_d_s": 3600,
+        "satisfied": true,
+        "deploy_gas": 396042,
+        "execute_gas": 34505
+      },
+      "nrd": {
+        "constraint": "NRD-14 (ISO 13888): ack within 1h of filing send",
+        "lag_s": 2700,
+        "lag_min": 45,
+        "max_ack_s": 3600,
+        "satisfied": true,
+        "state_label": "ACKNOWLEDGED",
+        "deploy_gas": 517950,
+        "execute_gas": 56156
+      },
+      "ccsd": {
+        "constraint": "CCSD-10: all orgs dispatch-sync within 90min",
+        "lag_s": 300,
+        "lag_min": 5,
+        "max_wait_s": 5400,
+        "satisfied": true,
+        "gate_fired": true,
+        "deploy_gas": 602594,
+        "execute_gas": 72948
+      },
+      "ccgd": {
+        "constraint": "CCGD-12: batch_release → delivery ≤ 48h",
+        "elapsed_s": 169200,
+        "elapsed_h": 47,
+        "limit_h": 48,
+        "satisfied": true,
+        "deploy_gas": 413272,
+        "execute_gas": 37161
+      },
+      "late_ack_violation": {
+        "description": "Regulatory ack arrives 2.5h late — NRD emits NonReceiptEvidence (SOFT, no revert)",
+        "lag_s": 7500,
+        "max_ack_s": 3600,
+        "enforcement": "SOFT — state=EVIDENCE_ISSUED, tx commits",
+        "evidence_emitted": true,
+        "iso_13888_compliant": true,
+        "execute_gas": 58642
+      }
+    },
+    "all_mandatory_satisfied": true
+  },
+  "summary": {
+    "total_constraint_definitions": 14,
+    "deployment_gas": {
+      "min": 272247,
+      "max": 770566,
+      "avg": 480238,
+      "values": {
+        "Def1_Duration": 272247,
+        "Def2_Cardinality": 338736,
+        "Def3_TemporalDependency": 443859,
+        "Def4_AbsoluteConstraints": 312699,
+        "Def5_CrossOrgTD": 770566,
+        "Def6_SyncDeadline": 604405,
+        "Def7_GlobalDeadline": 433342,
+        "Def8_CID": 396042,
+        "Def9_CCTD": 528175,
+        "Def10_CCSD": 602594,
+        "Def11_CECW": 490833,
+        "Def12_CCGD": 413272,
+        "Def13_CCCW": 598606,
+        "Def14_NRD": 517950
+      }
+    },
+    "execution_gas": {
+      "min": 27357,
+      "max": 135183,
+      "avg": 69098
+    },
+    "enforcement_modes": {
+      "HARD": [
+        "CID",
+        "CCTD",
+        "CCSD",
+        "CCGD"
+      ],
+      "SOFT": [
+        "CECW",
+        "CCCW",
+        "NRD"
+      ],
+      "ADVISORY_FABRIC_ONLY": "All 14 definitions on Hyperledger Fabric"
+    },
+    "levels": {
+      "L1": [
+        "Duration",
+        "Cardinality",
+        "TemporalDependency",
+        "AbsoluteConstraints"
+      ],
+      "L2": [
+        "CrossOrgTD",
+        "SyncDeadline",
+        "GlobalDeadline"
+      ],
+      "L3": [
+        "CID",
+        "CCTD",
+        "CCSD",
+        "CECW",
+        "CCGD",
+        "CCCW",
+        "NRD"
+      ]
+    },
+    "pharma_all_satisfied": true
+  }
+}

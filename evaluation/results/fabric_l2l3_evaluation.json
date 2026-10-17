@@ -1,0 +1,632 @@
+{
+  "platform": "Hyperledger Fabric",
+  "network": "test-network v3.1.5 (Raft, 2 orgs, cryptogen)",
+  "fabric_version": "3.1.5",
+  "evaluation_date": "2026-08-03T17:33Z",
+  "channel": "mychannel",
+  "chaincode": {
+    "name": "temporal",
+    "version": "1.0",
+    "deployment": "CCAAS",
+    "language": "Go",
+    "package_id": "temporal_1.0:791c2043fbf741d74688aa325faf2dc8057353dabf93f6c5f1313886911c8c32",
+    "listen_address": "0.0.0.0:9999"
+  },
+  "peers": [
+    "localhost:7051",
+    "localhost:9051"
+  ],
+  "crosszid_cpr": {
+    "cpr_address": "0xBB88532fe36F323Ee0ed6a07104b59A60B4d948a",
+    "cpr_deploy_method": "CREATE2 factory (Nick method, salt=keccak256(\"Cross-ZID\"))",
+    "ganache_port": 7546,
+    "chain_id": 1338,
+    "ganache_version": "v7.9.2",
+    "proofs_submitted": 3,
+    "proof_submission_session": "2026-08-03 (same session as Fabric invocations; proofs submitted before script restart)",
+    "proofs": [
+      {
+        "msg_id": "batch_release_send",
+        "tau": 1785778301,
+        "block": 4,
+        "advance_s": 0,
+        "note": "fresh proof, evm_increaseTime(0)"
+      },
+      {
+        "msg_id": "batch_release_recv",
+        "tau": 1785781001,
+        "block": 6,
+        "advance_s": 2700,
+        "note": "fresh proof after evm_increaseTime(2700) \u2014 +45 min"
+      },
+      {
+        "msg_id": "batch_delivery",
+        "tau": 1785788201,
+        "block": 8,
+        "advance_s": 7200,
+        "note": "fresh proof after evm_increaseTime(7200) \u2014 +2 h"
+      }
+    ],
+    "tau1": 1785778301,
+    "tau2": 1785781001,
+    "tau3": 1785788201,
+    "provenance": "\u03c4_CPR values were generated in the 2026-08-03 evaluation session via fresh proof submissions to a newly deployed CPR on Ganache chainId=1338. The script crashed after proof submission but before CCAAS install; tau values were passed as CLI arguments (--tau1/2/3) on resume. The proofs themselves are real and session-fresh \u2014 not reused from the 2026-06-30 Ethereum/Ganache L3 evaluation (chainId=1337)."
+  },
+  "endorsement_policy": "AND(Org1MSP.peer, Org2MSP.peer)",
+  "level2": {
+    "DEF5_CrossOrgTD_FS": {
+      "description": "Cross-org FS dependency: OrgA finishes \u2192 OrgB starts within [1h,24h]",
+      "invocations": [
+        {
+          "fn": "CrossOrgTD_Store",
+          "args": [
+            "cotd_pharma_FS",
+            "endA",
+            "Org1MSP"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        },
+        {
+          "fn": "CrossOrgTD_Check",
+          "args": [
+            "cotd_pharma_FS",
+            "endA",
+            "Org2MSP",
+            "3600",
+            "86400",
+            "FS"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        }
+      ],
+      "enforcement": "ADVISORY (SetEvent DesignerNotified)",
+      "statuses": [
+        200,
+        200
+      ],
+      "note": "Near-zero gap (consecutive txs) \u2014 advisory emitted; tx committed",
+      "all_ok": true
+    },
+    "DEF5_CrossOrgTD_SS": {
+      "description": "Cross-org SS dependency: both orgs start within [0,4h]",
+      "invocations": [
+        {
+          "fn": "CrossOrgTD_Store",
+          "args": [
+            "cotd_pharma_SS",
+            "startA",
+            "Org1MSP"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        },
+        {
+          "fn": "CrossOrgTD_Check",
+          "args": [
+            "cotd_pharma_SS",
+            "startA",
+            "Org2MSP",
+            "0",
+            "14400",
+            "SS"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        }
+      ],
+      "enforcement": "ADVISORY",
+      "statuses": [
+        200,
+        200
+      ],
+      "note": "0\u20134 h window, satisfied for consecutive txs",
+      "all_ok": true
+    },
+    "DEF6_SyncDeadline": {
+      "description": "Both orgs dispatch within maxWait=7200s of first completion",
+      "invocations": [
+        {
+          "fn": "InitSyncGate",
+          "args": [
+            "sync_pharma_dispatch",
+            "[\"Org1MSP\", \"Org2MSP\"]",
+            "7200"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        },
+        {
+          "fn": "MarkComplete_Sync",
+          "args": [
+            "sync_pharma_dispatch"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        },
+        {
+          "fn": "MarkComplete_Sync",
+          "args": [
+            "sync_pharma_dispatch"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        }
+      ],
+      "enforcement": "ADVISORY",
+      "statuses": [
+        200,
+        200,
+        200
+      ],
+      "gate_state": {
+        "processId": "sync_pharma_dispatch",
+        "firstCompletionTime": 1785778449,
+        "maxWait": 7200,
+        "requiredOrgs": [
+          "Org1MSP",
+          "Org2MSP"
+        ],
+        "completed": {
+          "Org1MSP": true,
+          "Org2MSP": true
+        },
+        "completedCount": 2,
+        "fired": true,
+        "aborted": false,
+        "initialised": true
+      },
+      "note": "Both orgs complete within seconds \u2014 gate fired; constraint satisfied",
+      "all_ok": true
+    },
+    "DEF7_GlobalDeadline": {
+      "description": "Total process duration \u2264 48h from start to end",
+      "invocations": [
+        {
+          "fn": "StartProcess_Global",
+          "args": [
+            "gd_pharma_batch"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        },
+        {
+          "fn": "EndProcess_Global",
+          "args": [
+            "gd_pharma_batch",
+            "172800"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        }
+      ],
+      "enforcement": "ADVISORY",
+      "statuses": [
+        200,
+        200
+      ],
+      "note": "Near-zero duration (consecutive txs) \u2014 constraint satisfied",
+      "all_ok": true
+    }
+  },
+  "level3": {
+    "DEF8_CID": {
+      "description": "Cross-chain interaction deadline: \u03c4_recv \u2212 \u03c4_send \u2264 2h (=7200 s)",
+      "tau_send": 1785778301,
+      "tau_recv": 1785781001,
+      "lag_s": 2700,
+      "max_s": 7200,
+      "invocations": [
+        {
+          "fn": "CID_RegisterSend",
+          "args": [
+            "cid_batch_release",
+            "msg_cid_001",
+            "1785778301"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        },
+        {
+          "fn": "CID_RegisterReceive",
+          "args": [
+            "cid_batch_release",
+            "msg_cid_ack",
+            "1785781001",
+            "7200"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        }
+      ],
+      "enforcement": "ADVISORY",
+      "statuses": [
+        200,
+        200
+      ],
+      "constraint_satisfied": true,
+      "all_ok": true
+    },
+    "DEF9_CCTD": {
+      "description": "Cross-chain temporal dependency FS: 30min \u2264 gap \u2264 48h",
+      "tau_A": 1785778301,
+      "tau_B": 1785781001,
+      "gap_s": 2700,
+      "minD_s": 1800,
+      "maxD_s": 172800,
+      "invocations": [
+        {
+          "fn": "CCTD_RecordOrgARef",
+          "args": [
+            "cctd_batch_FS",
+            "FS",
+            "msg_cctd_a",
+            "1785778301"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        },
+        {
+          "fn": "CCTD_RecordOrgBRef",
+          "args": [
+            "cctd_batch_FS",
+            "FS",
+            "msg_cctd_b",
+            "1785781001",
+            "1800",
+            "172800"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        }
+      ],
+      "enforcement": "ADVISORY",
+      "statuses": [
+        200,
+        200
+      ],
+      "constraint_satisfied": true,
+      "all_ok": true
+    },
+    "DEF10_CCSD": {
+      "description": "Cross-chain sync deadline: all orgs complete within maxWait=7200 s",
+      "tau1": 1785778301,
+      "tau2": 1785781001,
+      "lag_s": 2700,
+      "maxWait_s": 7200,
+      "invocations": [
+        {
+          "fn": "CCSD_InitGate",
+          "args": [
+            "ccsd_dispatch",
+            "[\"ManufacturerOrg\", \"LogisticsOrg\"]",
+            "7200"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        },
+        {
+          "fn": "CCSD_MarkComplete",
+          "args": [
+            "ccsd_dispatch",
+            "ManufacturerOrg",
+            "msg_mfg",
+            "1785778301"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        },
+        {
+          "fn": "CCSD_MarkComplete",
+          "args": [
+            "ccsd_dispatch",
+            "LogisticsOrg",
+            "msg_log",
+            "1785781001"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        }
+      ],
+      "enforcement": "ADVISORY",
+      "statuses": [
+        200,
+        200,
+        200
+      ],
+      "gate_state": {
+        "required": [
+          "ManufacturerOrg",
+          "LogisticsOrg"
+        ],
+        "completed": {
+          "LogisticsOrg": 1785781001,
+          "ManufacturerOrg": 1785778301
+        },
+        "firstTau": 1785778301,
+        "maxWait": 7200,
+        "fired": true,
+        "aborted": false
+      },
+      "constraint_satisfied": true,
+      "all_ok": true
+    },
+    "DEF11_CECW": {
+      "description": "Commitment expiry window: accept within 3h of offer",
+      "offer_tau": 1785778301,
+      "accept_tau": 1785781001,
+      "lag_s": 2700,
+      "window_s": 10800,
+      "invocations": [
+        {
+          "fn": "CECW_RegisterOffer",
+          "args": [
+            "cecw_pharma_commit",
+            "offer_batch",
+            "1785778301",
+            "10800"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        },
+        {
+          "fn": "CECW_Accept",
+          "args": [
+            "cecw_pharma_commit",
+            "accept_batch",
+            "1785781001"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        }
+      ],
+      "enforcement": "ADVISORY + state (ACCEPTED=2, EXPIRED=3)",
+      "statuses": [
+        200,
+        200
+      ],
+      "final_state": "2",
+      "constraint_satisfied": true,
+      "all_ok": true
+    },
+    "DEF12_CCGD": {
+      "description": "Cross-chain global deadline: \u03c4_end \u2212 \u03c4_start \u2264 48h",
+      "tau_start": 1785778301,
+      "tau_end": 1785788201,
+      "duration_s": 9900,
+      "deadline_s": 172800,
+      "invocations": [
+        {
+          "fn": "CCGD_RecordStart",
+          "args": [
+            "ccgd_batch_process",
+            "start_msg",
+            "1785778301"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        },
+        {
+          "fn": "CCGD_RecordEnd",
+          "args": [
+            "ccgd_batch_process",
+            "end_msg",
+            "1785788201",
+            "172800"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        }
+      ],
+      "enforcement": "ADVISORY",
+      "statuses": [
+        200,
+        200
+      ],
+      "constraint_satisfied": true,
+      "all_ok": true
+    },
+    "DEF13_CCCW": {
+      "description": "Cross-chain compensation window: compensation within 4h of failure",
+      "failure_tau": 1785781001,
+      "comp_tau": 1785788201,
+      "lag_s": 7200,
+      "maxComp_s": 14400,
+      "invocations": [
+        {
+          "fn": "CCCW_RecordFailure",
+          "args": [
+            "cccw_pharma",
+            "fail_msg",
+            "1785781001",
+            "14400"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        },
+        {
+          "fn": "CCCW_StartCompensation",
+          "args": [
+            "cccw_pharma",
+            "comp_msg",
+            "1785788201"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        },
+        {
+          "fn": "CCCW_CompleteCompensation",
+          "args": [
+            "cccw_pharma",
+            "done_msg",
+            "1785788201"
+          ],
+          "status": 200,
+          "block": null,
+          "ok": true,
+          "stderr": ""
+        }
+      ],
+      "enforcement": "ADVISORY + state (COMPENSATING=1, IRRECOVERABLE=3)",
+      "statuses": [
+        200,
+        200,
+        200
+      ],
+      "final_state": "2",
+      "constraint_satisfied": true,
+      "all_ok": true
+    },
+    "DEF14_NRD": {
+      "description": "Non-repudiation deadline: ack within 3h (ISO 13888-3)",
+      "happy_path": {
+        "send_tau": 1785778301,
+        "ack_tau": 1785781001,
+        "lag_s": 2700,
+        "maxAck_s": 10800,
+        "invocations": [
+          {
+            "fn": "NRD_RegisterSend",
+            "args": [
+              "nrd_msg_batch",
+              "send_001",
+              "1785778301",
+              "10800"
+            ],
+            "status": 200,
+            "block": null,
+            "ok": true,
+            "stderr": ""
+          },
+          {
+            "fn": "NRD_RegisterAck",
+            "args": [
+              "nrd_msg_batch",
+              "ack_001",
+              "1785781001"
+            ],
+            "status": 200,
+            "block": null,
+            "ok": true,
+            "stderr": ""
+          }
+        ],
+        "statuses": [
+          200,
+          200
+        ],
+        "final_state": "1",
+        "constraint_satisfied": true
+      },
+      "violation_path": {
+        "send_tau": 1785778301,
+        "claim_tau": 1785778361,
+        "maxAck_s": 30,
+        "invocations": [
+          {
+            "fn": "NRD_RegisterSend",
+            "args": [
+              "nrd_msg_late",
+              "send_002",
+              "1785778301",
+              "30"
+            ],
+            "status": 200,
+            "block": null,
+            "ok": true,
+            "stderr": ""
+          },
+          {
+            "fn": "NRD_ClaimNonReceipt",
+            "args": [
+              "nrd_msg_late",
+              "1785778361"
+            ],
+            "status": 200,
+            "block": null,
+            "ok": true,
+            "stderr": ""
+          }
+        ],
+        "statuses": [
+          200,
+          200
+        ],
+        "final_state": "2",
+        "note": "NonReceiptEvidence event emitted (ISO 13888-3)"
+      },
+      "enforcement": "ADVISORY + NonReceiptEvidence event (ISO 13888-3)",
+      "all_ok": true
+    }
+  },
+  "blockchain_state": {
+    "block_height": 33,
+    "timestamp": 1785778495
+  },
+  "tx_summary": {
+    "total_invocations": 27,
+    "successful": 27,
+    "failed": 0,
+    "definitions_covered": 10
+  },
+  "evaluation_elapsed_s": 66,
+  "l3_group3_coverage": {
+    "total_group3_definitions": 7,
+    "definitions_covered_this_run": 7,
+    "definitions": [
+      "DEF8_CID",
+      "DEF9_CCTD",
+      "DEF10_CCSD",
+      "DEF11_CECW",
+      "DEF12_CCGD",
+      "DEF13_CCCW",
+      "DEF14_NRD"
+    ],
+    "note": "All 7 Group III (Level 3 cross-chain) definitions are covered. This corrects a prior partial evaluation that covered only 5 of 7 Group III definitions on Ethereum only."
+  }
+}

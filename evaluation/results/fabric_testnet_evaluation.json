@@ -1,0 +1,156 @@
+{
+  "platform": "Hyperledger Fabric",
+  "network": "test-network (cryptogen, Raft consensus)",
+  "fabric_version": "3.1.5",
+  "evaluation_date": "2026-06-30",
+  "channel": "mychannel",
+  "chaincode": {
+    "name": "temporal",
+    "version": "1.0",
+    "deployment": "CCAAS (Chaincode-as-a-Service)",
+    "language": "Go",
+    "binary_size_mb": 17,
+    "listen_address": "0.0.0.0:9999",
+    "package_id": "temporal_1.0:e73ed105b8607e93181b03e701cec1972ee6e703df0e18c601a696f0ccc6e97f"
+  },
+  "peers": [
+    "peer0.org1.example.com:7051",
+    "peer0.org2.example.com:9051"
+  ],
+  "orderer": "orderer.example.com:7050 (Raft/etcd)",
+  "endorsement_policy": "AND(Org1MSP.peer, Org2MSP.peer)",
+  "blockchain_state": {
+    "block_height": 29,
+    "timestamp": 1782847781,
+    "date": "2026-06-30T21:29Z"
+  },
+  "constraint_tests": {
+    "DEF1_Duration": {
+      "description": "Measures elapsed time between task start and end; advisory guard emits DesignerNotified if duration falls outside [minD, maxD]",
+      "functions": ["StartTask_Duration", "EndTask_Duration"],
+      "invocations": [
+        {
+          "process": "pharmaRelease",
+          "start_status": 200,
+          "end_status": 200,
+          "note": "90-day pharma batch release window"
+        },
+        {
+          "process": "batchQC2",
+          "start_status": 200,
+          "end_status": 200,
+          "minD_s": 3600,
+          "maxD_s": 86400,
+          "note": "1h-24h QC inspection window, constraint satisfied (tx interval < 2s)"
+        }
+      ],
+      "enforcement": "ADVISORY (SetEvent DesignerNotified)"
+    },
+    "DEF2_Cardinality": {
+      "description": "Counts task executions within rolling time window; emits alert if count > maxCount or window exceeded",
+      "functions": ["InitTask_Cardinality", "ExecuteTask_Cardinality"],
+      "invocations": [
+        {
+          "task": "labInspection2",
+          "init_status": 200,
+          "maxCount": 3,
+          "maxWindow_s": 604800,
+          "executions": 3,
+          "exec_statuses": [200, 200, 200],
+          "note": "3 executions within 7-day window, all within limit"
+        }
+      ],
+      "enforcement": "ADVISORY (SetEvent DesignerNotified)"
+    },
+    "DEF3_TemporalDependency": {
+      "description": "Enforces MinD <= ref(tj) - ref(ti) <= MaxD for four dependency types (FS, SS, FF, SF)",
+      "subtypes": {
+        "FS_FinishToStart": {
+          "process": "proc1",
+          "minD_s": 3600,
+          "maxD_s": 172800,
+          "finish_A_status": 200,
+          "start_B_status": 200,
+          "note": "Near-zero gap (consecutive txs) — advisory emitted for violation; tx still committed"
+        },
+        "SS_StartToStart": {
+          "process": "proc2",
+          "minD_s": 0,
+          "maxD_s": 14400,
+          "start_A_status": 200,
+          "start_B_status": 200,
+          "note": "0-4h window, satisfied for consecutive txs"
+        },
+        "FF_FinishToFinish": {
+          "process": "proc3",
+          "minD_s": 0,
+          "maxD_s": 7200,
+          "finish_A_status": 200,
+          "finish_B_status": 200,
+          "note": "0-2h window, satisfied"
+        },
+        "SF_StartToFinish": {
+          "process": "proc4",
+          "minD_s": 0,
+          "maxD_s": 86400,
+          "start_A_status": 200,
+          "finish_B_status": 200,
+          "note": "0-24h window, satisfied"
+        }
+      },
+      "enforcement": "ADVISORY (SetEvent DesignerNotified)"
+    },
+    "DEF4_MSO": {
+      "description": "Multi-Synchronisation Order: start must occur within ±30s of targetTime",
+      "functions": ["StartTask_MSO"],
+      "tolerance_s": 30,
+      "invocations": [
+        {"process": "msoProc1", "target_epoch": 1782847786, "status": 200, "note": "target=now+5s, within tolerance"},
+        {"process": "msoProc2", "target_epoch": 1782847786, "status": 200},
+        {"process": "msoProc3", "target_epoch": 1782847786, "status": 200}
+      ],
+      "enforcement": "ADVISORY (SetEvent DesignerNotified)"
+    },
+    "DEF5_SNLT": {
+      "description": "Start Not Later Than: s(t) <= deadline",
+      "functions": ["StartTask_SNLT"],
+      "invocations": [
+        {"process": "snltTask", "deadline": 2051222400, "status": 200, "note": "Deadline 2035, satisfied"},
+        {"process": "fnltTask", "deadline": 2051222400, "status": 200, "note": "Used as pre-step for FNLT test"}
+      ],
+      "enforcement": "ADVISORY (SetEvent DesignerNotified)"
+    },
+    "DEF6_FNLT": {
+      "description": "Finish Not Later Than: e(t) <= deadline",
+      "functions": ["FinishTask_FNLT"],
+      "invocations": [
+        {"process": "fnltTask", "deadline": 2051222400, "status": 200, "note": "Deadline 2035, constraint satisfied"}
+      ],
+      "enforcement": "ADVISORY (SetEvent DesignerNotified)"
+    }
+  },
+  "performance": {
+    "block_latency_ms": {
+      "chaincode_invoke_with_waitForEvent": "~800ms average",
+      "approveformyorg": "~1500ms",
+      "commitChaincodeDefinition": "~2000ms"
+    },
+    "block_interval_s": "2s (Fabric default batch timeout)",
+    "block_height_after_evaluation": 29
+  },
+  "tx_summary": {
+    "total_chaincode_invocations": 22,
+    "successful": 22,
+    "failed": 0,
+    "total_blocks_committed": 29,
+    "lifecycle_blocks": 3,
+    "chaincode_invocation_blocks": 26,
+    "definitions_covered": 6
+  },
+  "level3_cross_chain_note": {
+    "description": "L3 cross-chain temporal constraints (tau_CPR) use the CrossChainProofRegistry (CPR) from Cross-ZID PoC as a chain-agnostic temporal witness. Real evaluation performed on Ganache (chainId=1337).",
+    "cpr_address_ganache": "0x66c9Ee9A55e6cDAC6ccf96C981954d0dd518D63e",
+    "tau_cpr_BatchRelease": 1783169627,
+    "see_also": "results/ganache_evaluation.json"
+  }
+}
